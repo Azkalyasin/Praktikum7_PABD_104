@@ -1,9 +1,12 @@
-﻿using System;
+﻿using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +21,9 @@ namespace Praktikum7
         {
             InitializeComponent();
             LoadData();
+            dgvMahasiswa.CellClick += dgvMahasiswa_CellClick;
+
+
         }
 
         private void ClearForm()
@@ -196,5 +202,90 @@ namespace Praktikum7
             }
         }
 
+        private void BtnImportData_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Excel Files|*.xlsx;*.xlsm";
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string filePath = openFileDialog.FileName;
+                PreviewData(filePath);  // Display preview before importing
+            }
+        }
+
+        private void PreviewData(string filePath)
+        {
+            try
+            {
+                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    IWorkbook workbook = new XSSFWorkbook(fs); // Membuka workbook Excel
+                    ISheet sheet = workbook.GetSheetAt(0); // Mendapatkan worksheet pertama
+                    DataTable dt = new DataTable();
+
+                    // Membaca header kolom
+                    IRow headerRow = sheet.GetRow(0);
+                    foreach (var cell in headerRow.Cells)
+                    {
+                        dt.Columns.Add(cell.ToString());
+                    }
+
+                    // Membaca sisa data
+                    for (int i = 1; i <= sheet.LastRowNum; i++) // Lewati baris header
+                    {
+                        IRow dataRow = sheet.GetRow(i);
+                        DataRow newRow = dt.NewRow();
+                        int cellIndex = 0;
+                        foreach (var cell in dataRow.Cells)
+                        {
+                            newRow[cellIndex] = cell.ToString();
+                            cellIndex++;
+                        }
+                        dt.Rows.Add(newRow);
+                    }
+
+                    // Membuka PreviewForm dan mengirimkan DataTable ke form tersebut
+                    PreviewForm previewForm = new PreviewForm(dt);
+                    previewForm.ShowDialog(); // Tampilkan PreviewForm
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error reading the Excel file: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnRefresh_Click(object sender, EventArgs e)
+        {
+            LoadData();
+        }
+
+        private void dgvMahasiswa_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+        }
+
+        private void dgvMahasiswa_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                DataGridViewRow row = dgvMahasiswa.Rows[e.RowIndex];
+                txtNIM.Text = row.Cells["NIM"].Value.ToString();
+                txtNama.Text = row.Cells["Nama"].Value.ToString();
+                txtEmail.Text = row.Cells["Email"].Value.ToString();
+                txtTelepon.Text = row.Cells["Telpon"].Value.ToString();
+                txtAlamat.Text = row.Cells["Alamat"].Value.ToString();
+            }
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void BtnClearForm_Click(object sender, EventArgs e)
+        {
+            ClearForm();
+        }
     }
 }

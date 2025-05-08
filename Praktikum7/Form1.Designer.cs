@@ -36,19 +36,22 @@
             this.BtnTambah = new System.Windows.Forms.Button();
             this.BtnHapus = new System.Windows.Forms.Button();
             this.BtnUbah = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
+            this.BtnRefresh = new System.Windows.Forms.Button();
+            this.BtnImportData = new System.Windows.Forms.Button();
             this.txtNIM = new System.Windows.Forms.TextBox();
             this.txtNama = new System.Windows.Forms.TextBox();
             this.txtEmail = new System.Windows.Forms.TextBox();
             this.txtTelepon = new System.Windows.Forms.TextBox();
             this.txtAlamat = new System.Windows.Forms.TextBox();
             this.dgvMahasiswa = new System.Windows.Forms.DataGridView();
+            this.BtnClearForm = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMahasiswa)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(103, 19);
             this.label1.Name = "label1";
@@ -58,6 +61,8 @@
             // 
             // label2
             // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(103, 70);
             this.label2.Name = "label2";
@@ -67,6 +72,8 @@
             // 
             // label3
             // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(103, 118);
             this.label3.Name = "label3";
@@ -76,6 +83,8 @@
             // 
             // label4
             // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(103, 166);
             this.label4.Name = "label4";
@@ -85,6 +94,8 @@
             // 
             // label5
             // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(103, 218);
             this.label5.Name = "label5";
@@ -122,26 +133,30 @@
             this.BtnUbah.UseVisualStyleBackColor = true;
             this.BtnUbah.Click += new System.EventHandler(this.BtnUbah_Click);
             // 
-            // button4
+            // BtnRefresh
             // 
-            this.button4.Location = new System.Drawing.Point(252, 323);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(116, 28);
-            this.button4.TabIndex = 8;
-            this.button4.Text = "Refresh";
-            this.button4.UseVisualStyleBackColor = true;
+            this.BtnRefresh.Location = new System.Drawing.Point(252, 323);
+            this.BtnRefresh.Name = "BtnRefresh";
+            this.BtnRefresh.Size = new System.Drawing.Size(116, 28);
+            this.BtnRefresh.TabIndex = 8;
+            this.BtnRefresh.Text = "Refresh";
+            this.BtnRefresh.UseVisualStyleBackColor = true;
+            this.BtnRefresh.Click += new System.EventHandler(this.BtnRefresh_Click);
             // 
-            // button5
+            // BtnImportData
             // 
-            this.button5.Location = new System.Drawing.Point(105, 375);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(263, 28);
-            this.button5.TabIndex = 9;
-            this.button5.Text = "Import Data";
-            this.button5.UseVisualStyleBackColor = true;
+            this.BtnImportData.Location = new System.Drawing.Point(105, 375);
+            this.BtnImportData.Name = "BtnImportData";
+            this.BtnImportData.Size = new System.Drawing.Size(117, 28);
+            this.BtnImportData.TabIndex = 9;
+            this.BtnImportData.Text = "Import Data";
+            this.BtnImportData.UseVisualStyleBackColor = true;
+            this.BtnImportData.Click += new System.EventHandler(this.BtnImportData_Click);
             // 
             // txtNIM
             // 
+            this.txtNIM.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtNIM.Location = new System.Drawing.Point(192, 13);
             this.txtNIM.Name = "txtNIM";
             this.txtNIM.Size = new System.Drawing.Size(198, 22);
@@ -149,6 +164,8 @@
             // 
             // txtNama
             // 
+            this.txtNama.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtNama.Location = new System.Drawing.Point(192, 67);
             this.txtNama.Name = "txtNama";
             this.txtNama.Size = new System.Drawing.Size(198, 22);
@@ -156,6 +173,8 @@
             // 
             // txtEmail
             // 
+            this.txtEmail.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtEmail.Location = new System.Drawing.Point(192, 115);
             this.txtEmail.Name = "txtEmail";
             this.txtEmail.Size = new System.Drawing.Size(198, 22);
@@ -163,6 +182,8 @@
             // 
             // txtTelepon
             // 
+            this.txtTelepon.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtTelepon.Location = new System.Drawing.Point(192, 160);
             this.txtTelepon.Name = "txtTelepon";
             this.txtTelepon.Size = new System.Drawing.Size(198, 22);
@@ -170,6 +191,8 @@
             // 
             // txtAlamat
             // 
+            this.txtAlamat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtAlamat.Location = new System.Drawing.Point(192, 212);
             this.txtAlamat.Name = "txtAlamat";
             this.txtAlamat.Size = new System.Drawing.Size(198, 22);
@@ -177,6 +200,7 @@
             // 
             // dgvMahasiswa
             // 
+            this.dgvMahasiswa.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvMahasiswa.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvMahasiswa.Location = new System.Drawing.Point(443, 12);
             this.dgvMahasiswa.Name = "dgvMahasiswa";
@@ -184,20 +208,32 @@
             this.dgvMahasiswa.RowTemplate.Height = 24;
             this.dgvMahasiswa.Size = new System.Drawing.Size(591, 391);
             this.dgvMahasiswa.TabIndex = 15;
+            this.dgvMahasiswa.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvMahasiswa_CellContentClick);
+            // 
+            // BtnClearForm
+            // 
+            this.BtnClearForm.Location = new System.Drawing.Point(252, 375);
+            this.BtnClearForm.Name = "BtnClearForm";
+            this.BtnClearForm.Size = new System.Drawing.Size(117, 28);
+            this.BtnClearForm.TabIndex = 16;
+            this.BtnClearForm.Text = "Clear Form";
+            this.BtnClearForm.UseVisualStyleBackColor = true;
+            this.BtnClearForm.Click += new System.EventHandler(this.BtnClearForm_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1076, 450);
+            this.Controls.Add(this.BtnClearForm);
             this.Controls.Add(this.dgvMahasiswa);
             this.Controls.Add(this.txtAlamat);
             this.Controls.Add(this.txtTelepon);
             this.Controls.Add(this.txtEmail);
             this.Controls.Add(this.txtNama);
             this.Controls.Add(this.txtNIM);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.button4);
+            this.Controls.Add(this.BtnImportData);
+            this.Controls.Add(this.BtnRefresh);
             this.Controls.Add(this.BtnUbah);
             this.Controls.Add(this.BtnHapus);
             this.Controls.Add(this.BtnTambah);
@@ -208,6 +244,7 @@
             this.Controls.Add(this.label1);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvMahasiswa)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -224,14 +261,15 @@
         private System.Windows.Forms.Button BtnTambah;
         private System.Windows.Forms.Button BtnHapus;
         private System.Windows.Forms.Button BtnUbah;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button BtnRefresh;
+        private System.Windows.Forms.Button BtnImportData;
         private System.Windows.Forms.TextBox txtNIM;
         private System.Windows.Forms.TextBox txtNama;
         private System.Windows.Forms.TextBox txtEmail;
         private System.Windows.Forms.TextBox txtTelepon;
         private System.Windows.Forms.TextBox txtAlamat;
         private System.Windows.Forms.DataGridView dgvMahasiswa;
+        private System.Windows.Forms.Button BtnClearForm;
     }
 }
 
