@@ -44,7 +44,7 @@
             this.txtTelepon = new System.Windows.Forms.TextBox();
             this.txtAlamat = new System.Windows.Forms.TextBox();
             this.dgvMahasiswa = new System.Windows.Forms.DataGridView();
-            this.BtnClearForm = new System.Windows.Forms.Button();
+            this.Analisis = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMahasiswa)).BeginInit();
             this.SuspendLayout();
             // 
@@ -210,22 +210,22 @@
             this.dgvMahasiswa.TabIndex = 15;
             this.dgvMahasiswa.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvMahasiswa_CellContentClick);
             // 
-            // BtnClearForm
+            // Analisis
             // 
-            this.BtnClearForm.Location = new System.Drawing.Point(252, 375);
-            this.BtnClearForm.Name = "BtnClearForm";
-            this.BtnClearForm.Size = new System.Drawing.Size(117, 28);
-            this.BtnClearForm.TabIndex = 16;
-            this.BtnClearForm.Text = "Clear Form";
-            this.BtnClearForm.UseVisualStyleBackColor = true;
-            this.BtnClearForm.Click += new System.EventHandler(this.BtnClearForm_Click);
+            this.Analisis.Location = new System.Drawing.Point(252, 375);
+            this.Analisis.Name = "Analisis";
+            this.Analisis.Size = new System.Drawing.Size(116, 28);
+            this.Analisis.TabIndex = 16;
+            this.Analisis.Text = "Analisis";
+            this.Analisis.UseVisualStyleBackColor = true;
+            this.Analisis.Click += new System.EventHandler(this.Analisis_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1076, 450);
-            this.Controls.Add(this.BtnClearForm);
+            this.Controls.Add(this.Analisis);
             this.Controls.Add(this.dgvMahasiswa);
             this.Controls.Add(this.txtAlamat);
             this.Controls.Add(this.txtTelepon);
@@ -269,7 +269,7 @@
         private System.Windows.Forms.TextBox txtTelepon;
         private System.Windows.Forms.TextBox txtAlamat;
         private System.Windows.Forms.DataGridView dgvMahasiswa;
-        private System.Windows.Forms.Button BtnClearForm;
+        private System.Windows.Forms.Button Analisis;
     }
 }
 

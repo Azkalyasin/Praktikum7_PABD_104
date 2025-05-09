@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,200 +17,211 @@ namespace Praktikum7
 {
     public partial class Form1: Form
     {
-        static string connectionString = "Data Source=LAPTOP-PGU1KG1D\\AZKALADZKIA;Initial Catalog=OrganisasiMahasiswa;Integrated Security=True;";
+        private readonly string connectionString = "Data Source=LAPTOP-PGU1KG1D\\AZKALADZKIA;Initial Catalog=OrganisasiMahasiswa;Integrated Security=True;";
+
+        private readonly MemoryCache _cache = MemoryCache.Default;
+        private readonly CacheItemPolicy _policy = new CacheItemPolicy
+        {
+            AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(5)
+        };
+        private const string CacheKey = "MahasiswaData";
+
         public Form1()
         {
             InitializeComponent();
-            LoadData();
-            dgvMahasiswa.CellClick += dgvMahasiswa_CellClick;
-
-
         }
+
+        private void EnsureIndexes()
+        {
+            using (var conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                var indexScript = @"
+                IF OBJECT_ID('dbo.Mahasiswa', 'U') IS NOT NULL
+                BEGIN
+                    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='idx_Mahasiswa_Nama')
+                        CREATE NONCLUSTERED INDEX idx_Mahasiswa_Nama ON dbo.Mahasiswa(Nama);
+                    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='idx_Mahasiswa_Email')
+                        CREATE NONCLUSTERED INDEX idx_Mahasiswa_Email ON dbo.Mahasiswa(Email);
+                    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='idx_Mahasiswa_Telpon')
+                        CREATE NONCLUSTERED INDEX idx_Mahasiswa_Telpon ON dbo.Mahasiswa(Telpon);
+                END";
+                using (var cmd = new SqlCommand(indexScript, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+
 
         private void ClearForm()
         {
-            txtNIM.Text = "";
-            txtNama.Text = "";
-            txtEmail.Text = "";
-            txtTelepon.Text = "";
-            txtAlamat.Text = "";
+            txtNIM.Clear();
+            txtNama.Clear();
+            txtEmail.Clear();
+            txtTelepon.Clear();
+            txtAlamat.Clear();
+            dgvMahasiswa.ClearSelection();
         }
 
 
         private void BtnTambah_Click(object sender, EventArgs e)
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            if (string.IsNullOrWhiteSpace(txtNIM.Text) || string.IsNullOrWhiteSpace(txtNama.Text))
             {
-                try
+                MessageBox.Show("Harap isi semua data!", "Peringatan!");
+                return;
+            }
+
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
                 {
-                    if (txtNIM.Text == "" || txtNama.Text == "" || txtEmail.Text == "" || txtTelepon.Text == "" || txtAlamat.Text == "")
-                    {
-                        MessageBox.Show("Harap isi semua data!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-
                     conn.Open();
-
-                    using (SqlCommand cmd = new SqlCommand("AddMahasiswa", conn))
+                    using (var cmd = new SqlCommand("AddMahasiswa", conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
-
                         cmd.Parameters.AddWithValue("@NIM", txtNIM.Text.Trim());
                         cmd.Parameters.AddWithValue("@Nama", txtNama.Text.Trim());
                         cmd.Parameters.AddWithValue("@Email", txtEmail.Text.Trim());
                         cmd.Parameters.AddWithValue("@Telpon", txtTelepon.Text.Trim());
                         cmd.Parameters.AddWithValue("@Alamat", txtAlamat.Text.Trim());
-
-                        int rowsAffected = cmd.ExecuteNonQuery();
-
-                        if (rowsAffected > 0)
-                        {
-                            MessageBox.Show("Data berhasil ditambahkan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            LoadData();
-                            ClearForm();
-                        }
-                        else
-                        {
-                            MessageBox.Show("Data tidak berhasil ditambahkan!", "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
+                        cmd.ExecuteNonQuery();
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error: " + ex.Message, "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
 
+                _cache.Remove(CacheKey);
+                MessageBox.Show("Data berhasil ditambahkan!", "Sukses");
+                LoadData();
+                ClearForm();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error : " + ex.Message, "Kesalahan");
+            }
         }
 
         private void BtnUbah_Click(object sender, EventArgs e)
         {
-            if (dgvMahasiswa.SelectedRows.Count > 0)
+            if (dgvMahasiswa.SelectedRows.Count == 0)
             {
-                using (SqlConnection conn = new SqlConnection(connectionString))
+                MessageBox.Show("Pilih data yang akan diubah!", "Peringatan");
+                return;
+            }
+
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
                 {
-                    try
+                    conn.Open();
+                    using (var cmd = new SqlCommand("UpdateMahasiswa", conn))
                     {
-                        conn.Open();
-                        using (SqlCommand cmd = new SqlCommand("UpdateMahasiswa", conn))
-                        {
-                            cmd.CommandType = CommandType.StoredProcedure;
-
-                            cmd.Parameters.AddWithValue("@NIM", txtNIM.Text.Trim());
-                            cmd.Parameters.AddWithValue("@Nama", txtNama.Text.Trim());
-                            cmd.Parameters.AddWithValue("@Email", txtEmail.Text.Trim());
-                            cmd.Parameters.AddWithValue("@Telpon", txtTelepon.Text.Trim());
-
-                            cmd.Parameters.AddWithValue("@Alamat", txtAlamat.Text.Trim());
-
-                            int rowsAffected = cmd.ExecuteNonQuery();
-
-                            if (rowsAffected > 0)
-                            {
-                                MessageBox.Show("Data berhasil diperbarui!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                LoadData();
-                                ClearForm(); 
-                            }
-                            else
-                            {
-                                MessageBox.Show("Data tidak ditemukan atau gagal diperbarui!", "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Error: " + ex.Message, "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@NIM", txtNIM.Text.Trim());
+                        cmd.Parameters.AddWithValue("@Nama", txtNama.Text.Trim());
+                        cmd.Parameters.AddWithValue("@Email", txtEmail.Text.Trim());
+                        cmd.Parameters.AddWithValue("@Telpon", txtTelepon.Text.Trim());
+                        cmd.Parameters.AddWithValue("@Alamat", txtAlamat.Text.Trim());
+                        cmd.ExecuteNonQuery();
                     }
                 }
+
+                _cache.Remove(CacheKey);
+                MessageBox.Show("Data berhasil diperbarui!", "Sukses");
+                LoadData();
+                ClearForm();
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Pilih data yang akan diubah!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Error: " + ex.Message, "Kesalahan");
+            }
+        }
+
+        private void AnalyzeQuery(string sqlQuery)
+        {
+            using (var conn = new SqlConnection(connectionString))
+            {
+                conn.InfoMessage += (s, e) => MessageBox.Show(e.Message, "STATISTICS INFO");
+                conn.Open();
+                var wrapped = $@"
+        SET STATISTICS IO ON;
+        SET STATISTICS TIME ON;
+        {sqlQuery};
+        SET STATISTICS IO OFF;
+        SET STATISTICS TIME OFF;";
+                using (var cmd = new SqlCommand(wrapped, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
         private void BtnHapus_Click(object sender, EventArgs e)
         {
-            if (dgvMahasiswa.SelectedRows.Count > 0)
+            if (dgvMahasiswa.SelectedRows.Count == 0) return;
+            if (MessageBox.Show("Yakin ingin menghapus data ini?", "Konfirmasi", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                return;
+
+            try
             {
-                DialogResult confirm = MessageBox.Show(
-                    "Yakin ingin menghapus data ini?",
-                    "Konfirmasi",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question
-                );
-
-                if (confirm == DialogResult.Yes)
+                var nim = dgvMahasiswa.SelectedRows[0].Cells["NIM"].Value.ToString();
+                using (var conn = new SqlConnection(connectionString))
                 {
-                    using (SqlConnection conn = new SqlConnection(connectionString))
+                    conn.Open();
+                    using (var cmd = new SqlCommand("DeleteMahasiswa", conn))
                     {
-                        try
-                        {
-                            string nim = dgvMahasiswa.SelectedRows[0].Cells["NIM"].Value.ToString();
-                            conn.Open();
-
-                            using (SqlCommand cmd = new SqlCommand("DeleteMahasiswa", conn))
-                            {
-                                cmd.CommandType = CommandType.StoredProcedure;
-                                cmd.Parameters.AddWithValue("@NIM", nim);
-
-                                int rowsAffected = cmd.ExecuteNonQuery();
-
-                                if (rowsAffected > 0)
-                                {
-                                    MessageBox.Show("Data berhasil dihapus!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                    LoadData();
-                                    ClearForm(); // Auto Clear setelah hapus data
-                                }
-                                else
-                                {
-                                    MessageBox.Show("Data tidak ditemukan atau gagal dihapus!", "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("Error: " + ex.Message, "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@NIM", nim);
+                        cmd.ExecuteNonQuery();
                     }
                 }
-            }
-            else
-            {
-                MessageBox.Show("Pilih data yang akan dihapus!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
 
+                _cache.Remove(CacheKey);
+                MessageBox.Show("Data berhasil dihapus!", "Sukses");
+                LoadData();
+                ClearForm();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message, "Kesalahan");
+            }
         }
 
         private void LoadData()
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            DataTable dt;
+            if (_cache.Contains(CacheKey))
             {
-                try
+                dt = _cache.Get(CacheKey) as DataTable;
+            }
+            else
+            {
+                dt = new DataTable();
+                using (var conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    string query = "SELECT NIM AS [NIM], Nama, Email, Telpon, Alamat FROM Mahasiswa";
-                    SqlDataAdapter da = new SqlDataAdapter(query, conn);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-                    dgvMahasiswa.AutoGenerateColumns = true;
-                    dgvMahasiswa.DataSource = dt;
+                    var query = "SELECT NIM AS [NIM], Nama, Email, Telpon, Alamat FROM dbo.Mahasiswa;";
+                    var a = new SqlDataAdapter(query, conn);
+                    a.Fill(dt);
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error: " + ex.Message, "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+
+                _cache.Add(CacheKey, dt, _policy);
             }
+
+            dgvMahasiswa.AutoGenerateColumns = true;
+            dgvMahasiswa.DataSource = dt;
         }
 
         private void BtnImportData_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Excel Files|*.xlsx;*.xlsm";
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            using (var openFile = new OpenFileDialog())
             {
-                string filePath = openFileDialog.FileName;
-                PreviewData(filePath);  // Display preview before importing
+                openFile.Filter = "Excel Files|*.xlsx;*.xlsm";
+                if (openFile.ShowDialog() == DialogResult.OK)
+                {
+                    PreviewData(openFile.FileName);
+                }
             }
         }
 
@@ -219,34 +231,35 @@ namespace Praktikum7
             {
                 using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
-                    IWorkbook workbook = new XSSFWorkbook(fs); // Membuka workbook Excel
-                    ISheet sheet = workbook.GetSheetAt(0); // Mendapatkan worksheet pertama
+                    IWorkbook workbook = new XSSFWorkbook(fs);
+                    ISheet sheet = workbook.GetSheetAt(0);
                     DataTable dt = new DataTable();
 
-                    // Membaca header kolom
+                    // Header kolom
                     IRow headerRow = sheet.GetRow(0);
                     foreach (var cell in headerRow.Cells)
                     {
                         dt.Columns.Add(cell.ToString());
                     }
 
-                    // Membaca sisa data
-                    for (int i = 1; i <= sheet.LastRowNum; i++) // Lewati baris header
+                    // Baris data
+                    for (int i = 1; i <= sheet.LastRowNum; i++)
                     {
                         IRow dataRow = sheet.GetRow(i);
+                        if (dataRow == null) continue;
                         DataRow newRow = dt.NewRow();
-                        int cellIndex = 0;
-                        foreach (var cell in dataRow.Cells)
+
+                        for (int j = 0; j < dataRow.Cells.Count; j++)
                         {
-                            newRow[cellIndex] = cell.ToString();
-                            cellIndex++;
+                            var cell = dataRow.Cells[j];
+                            newRow[j] = cell?.ToString() ?? "";
                         }
+
                         dt.Rows.Add(newRow);
                     }
 
-                    // Membuka PreviewForm dan mengirimkan DataTable ke form tersebut
                     PreviewForm previewForm = new PreviewForm(dt);
-                    previewForm.ShowDialog(); // Tampilkan PreviewForm
+                    previewForm.ShowDialog();
                 }
             }
             catch (Exception ex)
@@ -257,6 +270,7 @@ namespace Praktikum7
 
         private void BtnRefresh_Click(object sender, EventArgs e)
         {
+            _cache.Remove(CacheKey);
             LoadData();
         }
 
@@ -266,26 +280,26 @@ namespace Praktikum7
 
         private void dgvMahasiswa_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0)
-            {
-                DataGridViewRow row = dgvMahasiswa.Rows[e.RowIndex];
-                txtNIM.Text = row.Cells["NIM"].Value.ToString();
-                txtNama.Text = row.Cells["Nama"].Value.ToString();
-                txtEmail.Text = row.Cells["Email"].Value.ToString();
-                txtTelepon.Text = row.Cells["Telpon"].Value.ToString();
-                txtAlamat.Text = row.Cells["Alamat"].Value.ToString();
-            }
-
+            if (e.RowIndex < 0) return;
+            var row = dgvMahasiswa.Rows[e.RowIndex];
+            txtNIM.Text = row.Cells[0].Value?.ToString() ?? string.Empty;
+            txtNama.Text = row.Cells[1].Value?.ToString() ?? string.Empty;
+            txtEmail.Text = row.Cells[2].Value?.ToString() ?? string.Empty;
+            txtTelepon.Text = row.Cells[3].Value?.ToString() ?? string.Empty;
+            txtAlamat.Text = row.Cells[4].Value?.ToString() ?? string.Empty;
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            LoadData();
+            EnsureIndexes();
         }
 
-        private void BtnClearForm_Click(object sender, EventArgs e)
+
+        private void Analisis_Click(object sender, EventArgs e)
         {
-            ClearForm();
+            var heavyQuery = "SELECT Nama, Email, Telpon FROM dbo.Mahasiswa WHERE Nama LIKE 'A%'";
+            AnalyzeQuery(heavyQuery);
         }
     }
 }
